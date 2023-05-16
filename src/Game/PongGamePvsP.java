@@ -1,20 +1,34 @@
 package Game;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 
 public class PongGamePvsP extends JPanel implements KeyListener {
 
-    Font font = new Font("Comic Sans MS", Font.BOLD, 15);
     static final int WINDOW_WIDTH = 640, WINDOW_HEIGHT = 480;
-    private Ball gameBall;
-    private UserPaddle user1Paddle, user2Paddle;
+    private final Ball gameBall;
+    private final UserPaddle user1Paddle;
+    private final UserPaddle user2Paddle;
     private int user1Score, user2Score;
-    private int bounceCount;
     private final boolean[] keys = new boolean[256];
+    private boolean gameEnded = false;
+    private Font customFontForScore;
+    private Clip clip;
+
     public PongGamePvsP() {
+
+        try {
+            customFontForScore = Font.createFont(Font.TRUETYPE_FONT, new File("bit5x3.ttf")).deriveFont(72f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFontForScore);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
 
         gameBall = new Ball(300, 200, 3, 3, 3, Color.WHITE, 10);
         user1Paddle = new UserPaddle(10, 200, 75, 10, Color.WHITE);
@@ -22,7 +36,6 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
         user1Score = 0;
         user2Score = 0;
-        bounceCount = 0;
 
         addKeyListener(this);
 
@@ -45,7 +58,6 @@ public class PongGamePvsP extends JPanel implements KeyListener {
         gameBall.setCurrentX(3);
         gameBall.setCurrentY(3);
         gameBall.setSpeed(3);
-        bounceCount = 0;
     }
 
     public void paintComponent(Graphics g) {
@@ -58,8 +70,8 @@ public class PongGamePvsP extends JPanel implements KeyListener {
         user2Paddle.paint(g);
 
         g.setColor(Color.WHITE);
-        g.setFont(font);
-        g.drawString("Score - Player1 [ " + user1Score + " ]   Player2 [ " + user2Score + " ]", 185, 20);
+        g.setFont(customFontForScore);
+        g.drawString(user1Score  + "   " + user2Score , 235, 60);
     }
 
     public void gameLogic() {
@@ -71,14 +83,9 @@ public class PongGamePvsP extends JPanel implements KeyListener {
         user2Paddle.move();
 
         if (user1Paddle.checkCollision(gameBall) || user2Paddle.checkCollision(gameBall)) {
+            playSound();
             gameBall.reverseX();
-            bounceCount++;
             gameBall.increaseSpeed();
-        }
-
-        if (bounceCount == 5) {
-            bounceCount = 0;
-
         }
 
         if (gameBall.getX() < 0) {
@@ -88,6 +95,25 @@ public class PongGamePvsP extends JPanel implements KeyListener {
             user1Score++;
             reset();
         }
+
+        if (user1Score >= 10 && !gameEnded) {
+            new WinningWindow("P1");
+            gameEnded = true;
+
+            user1Paddle.moveTowards(0);
+            user2Paddle.moveTowards(0);
+
+            stopGame();
+
+        } else if (user2Score >= 10 && !gameEnded) {
+            new WinningWindow("P2");
+            gameEnded = true;
+
+            user1Paddle.moveTowards(0);
+            user2Paddle.moveTowards(0);
+
+            stopGame();
+        }
     }
 
 
@@ -95,19 +121,13 @@ public class PongGamePvsP extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
 
-        switch(keyCode) {
-            case KeyEvent.VK_W:
-                user1Paddle.moveUp();
-                break;
-            case KeyEvent.VK_S:
-                user1Paddle.moveDown();
-                break;
-            case KeyEvent.VK_UP:
-                user2Paddle.moveUp();
-                break;
-            case KeyEvent.VK_DOWN:
-                user2Paddle.moveDown();
-                break;
+        switch (keyCode) {
+            case KeyEvent.VK_W -> user1Paddle.moveUp();
+            case KeyEvent.VK_S -> user1Paddle.moveDown();
+            case KeyEvent.VK_UP -> user2Paddle.moveUp();
+            case KeyEvent.VK_DOWN -> user2Paddle.moveDown();
+
+
         }
 
     }
@@ -115,23 +135,47 @@ public class PongGamePvsP extends JPanel implements KeyListener {
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
 
-        switch(keyCode) {
-            case KeyEvent.VK_W:
-                user1Paddle.moveUp();
-                break;
-            case KeyEvent.VK_S:
-                user1Paddle.moveDown();
-                break;
-            case KeyEvent.VK_UP:
-                user2Paddle.moveUp();
-                break;
-            case KeyEvent.VK_DOWN:
-                user2Paddle.moveDown();
-                break;
+        switch (keyCode) {
+            case KeyEvent.VK_W -> user1Paddle.moveUp();
+            case KeyEvent.VK_S -> user1Paddle.moveDown();
+            case KeyEvent.VK_UP -> user2Paddle.moveUp();
+            case KeyEvent.VK_DOWN -> user2Paddle.moveDown();
         }
     }
 
     public void keyTyped(KeyEvent e) {
         // Not used
     }
+
+    private void playSound() {
+        try {
+            File soundFile = new File("ballSound.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    stopSound();
+                }
+            });
+            clip.start();
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void stopSound() {
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+        }
+    }
+
+    public void stopGame() {
+        Container topLevelContainer = this.getTopLevelAncestor();
+
+        if (topLevelContainer instanceof JFrame frame) {
+            frame.dispose();
+        }
+    }
+
 }

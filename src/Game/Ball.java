@@ -67,6 +67,18 @@ public class Ball {
         this.currentX = currentX;
     }
 
+    public int getCurrentX() {
+        return currentX;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getCurrentY() {
+        return currentY;
+    }
+
     public int getSize(){
         return size;
     }
@@ -114,7 +126,7 @@ public class Ball {
      */
     public void increaseSpeed() {
         // Reset speed to initial value
-        speed = 5;
+        speed = 7;
 
         // Multiply currentX and currentY by a constant value
         double multiplier = 1.2;
@@ -129,7 +141,6 @@ public class Ball {
             currentY = (int) Math.floor(currentY * multiplier);
         }
     }
-
 
 
 
