@@ -102,7 +102,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             userScore++;
             reset();
         }
-        if (aiScore >= 10 && !gameEnded) {
+        if (aiScore >= 8 && !gameEnded) {
             new WinningWindow("AI");
             gameEnded = true;
             aiPaddle.setY(9999);
@@ -110,7 +110,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             stopSound();
             stopGame();
 
-        } else if (userScore >= 10 && !gameEnded) {
+        } else if (userScore >= 8 && !gameEnded) {
             new WinningWindow("Player");
             gameEnded = true;
             aiPaddle.setY(9999);

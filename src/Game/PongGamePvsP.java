@@ -94,7 +94,7 @@ public class PongGamePvsP extends JPanel implements KeyListener {
             reset();
         }
 
-        if (user1Score >= 10 && !gameEnded) {
+        if (user1Score >= 8 && !gameEnded) {
             new WinningWindow("P1");
             gameEnded = true;
 
@@ -103,7 +103,7 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
             stopGame();
 
-        } else if (user2Score >= 10 && !gameEnded) {
+        } else if (user2Score >= 8 && !gameEnded) {
             new WinningWindow("P2");
             gameEnded = true;
             user1Paddle.moveTowards(0);
