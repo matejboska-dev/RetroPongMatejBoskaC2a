@@ -11,15 +11,19 @@ import java.io.IOException;
 public class PongGamePvsAI extends JPanel implements KeyListener {
 
     static final int WINDOW_WIDTH = 640, WINDOW_HEIGHT = 480;
-    private Ball gameBall;
+    private final Ball gameBall;
     protected UserPaddle userPaddle;
     protected AIPaddle aiPaddle;
     private int userScore, aiScore;
     private int bounceCount;
     private boolean gameEnded = false;
 
-    Clip clip;
-    Font customFontForScore;
+    private Clip clip;
+    private Font customFontForScore;
+    private boolean[] keys = new boolean[256];
+
+    private long aiPaddleDelay = 5; // Delay in milliseconds between AI paddle movements
+    private long lastAiPaddleUpdateTime = 0;
 
     public PongGamePvsAI() {
 
@@ -43,10 +47,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         setFocusable(true);
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
-
     }
-
 
     public void reset() {
         try {
@@ -74,7 +75,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         g.setColor(Color.WHITE);
         g.setFont(customFontForScore);
-        g.drawString(userScore  + "   " + aiScore , 235, 60);
+        g.drawString(userScore + "   " + aiScore, 235, 60);
     }
 
     public void gameLogic() {
@@ -82,9 +83,13 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         gameBall.detectCollisionWithFrameEdges(0, WINDOW_HEIGHT);
 
-        aiPaddle.moveTowards(gameBall.getY());
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastAiPaddleUpdateTime >= aiPaddleDelay) {
+            aiPaddle.moveTowards(gameBall.getY());
+            lastAiPaddleUpdateTime = currentTime;
+        }
 
-        userPaddle.move();
+        updatePaddlePosition();
 
         if (aiPaddle.checkCollision(gameBall) || userPaddle.checkCollision(gameBall)) {
             gameBall.reverseX();
@@ -95,7 +100,6 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         if (bounceCount == 5) {
             bounceCount = 0;
-
         }
 
         if (gameBall.getX() < 0) {
@@ -105,8 +109,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             userScore++;
             reset();
         }
-
-        if (aiScore >= 1 && !gameEnded) {
+        if (aiScore >= 10 && !gameEnded) {
             new WinningWindow("AI");
             gameEnded = true;
             aiPaddle.setY(9999);
@@ -114,7 +117,7 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             stopSound();
             stopGame();
 
-        } else if ((userScore >= 1) && !gameEnded) {
+        } else if (userScore >= 10 && !gameEnded) {
             new WinningWindow("Player");
             gameEnded = true;
             aiPaddle.setY(9999);
@@ -124,23 +127,22 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
         }
     }
 
-
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_W) {
+    private void updatePaddlePosition() {
+        if (keys[KeyEvent.VK_W]) {
             userPaddle.moveUp();
-        } else if (keyCode == KeyEvent.VK_S) {
+        } else if (keys[KeyEvent.VK_S]) {
             userPaddle.moveDown();
         }
     }
 
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        keys[keyCode] = true;
+    }
+
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_W) {
-            userPaddle.moveUp();
-        } else if (keyCode == KeyEvent.VK_S) {
-            userPaddle.moveDown();
-        }
+        keys[keyCode] = false;
     }
 
     public void keyTyped(KeyEvent e) {
@@ -153,6 +155,11 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
             clip = AudioSystem.getClip();
             clip.open(audioInputStream);
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    stopSound();
+                }
+            });
             clip.start();
         } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
             ex.printStackTrace();
@@ -160,7 +167,9 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
     }
 
     private void stopSound() {
-        clip.stop();
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+        }
     }
 
     public void stopGame() {
@@ -170,7 +179,4 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
             frame.dispose();
         }
     }
-
-
 }
-

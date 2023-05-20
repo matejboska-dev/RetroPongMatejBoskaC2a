@@ -126,22 +126,22 @@ public class Ball {
      */
     public void increaseSpeed() {
         // Reset speed to initial value
-        speed = 7;
+        speed = 3;
+        int maxSpeed = 10;
 
         // Multiply currentX and currentY by a constant value
-        double multiplier = 1.2;
-        if (currentX > 0) {
-            currentX = (int) Math.ceil(currentX * multiplier);
-        } else {
-            currentX = (int) Math.floor(currentX * multiplier);
+        double multiplayer = 1.12;
+
+            if (currentX > 0) {
+                currentX = (int) Math.ceil(currentX * multiplayer);
+            } else {
+                currentX = (int) Math.floor(currentX * multiplayer);
+            }
+            if (currentY > 0) {
+                currentY = (int) Math.ceil(currentY * multiplayer);
+            } else {
+                currentY = (int) Math.floor(currentY * multiplayer);
+            }
         }
-        if (currentY > 0) {
-            currentY = (int) Math.ceil(currentY * multiplier);
-        } else {
-            currentY = (int) Math.floor(currentY * multiplier);
-        }
+
     }
-
-
-
-}

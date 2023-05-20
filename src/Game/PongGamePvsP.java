@@ -41,9 +41,6 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
         setFocusable(true);
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
-
-
     }
 
     public void reset() {
@@ -71,7 +68,7 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
         g.setColor(Color.WHITE);
         g.setFont(customFontForScore);
-        g.drawString(user1Score  + "   " + user2Score , 235, 60);
+        g.drawString(user1Score + "   " + user2Score, 235, 60);
     }
 
     public void gameLogic() {
@@ -79,8 +76,7 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
         gameBall.detectCollisionWithFrameEdges(0, WINDOW_HEIGHT);
 
-        user1Paddle.move();
-        user2Paddle.move();
+        updatePaddlePositions();
 
         if (user1Paddle.checkCollision(gameBall) || user2Paddle.checkCollision(gameBall)) {
             playSound();
@@ -108,39 +104,34 @@ public class PongGamePvsP extends JPanel implements KeyListener {
         } else if (user2Score >= 10 && !gameEnded) {
             new WinningWindow("P2");
             gameEnded = true;
-
             user1Paddle.moveTowards(0);
             user2Paddle.moveTowards(0);
-
             stopGame();
         }
     }
 
+    private void updatePaddlePositions() {
+        if (keys[KeyEvent.VK_W]) {
+            user1Paddle.moveUp();
+        } else if (keys[KeyEvent.VK_S]) {
+            user1Paddle.moveDown();
+        }
 
+        if (keys[KeyEvent.VK_UP]) {
+            user2Paddle.moveUp();
+        } else if (keys[KeyEvent.VK_DOWN]) {
+            user2Paddle.moveDown();
+        }
+    }
 
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
-
-        switch (keyCode) {
-            case KeyEvent.VK_W -> user1Paddle.moveUp();
-            case KeyEvent.VK_S -> user1Paddle.moveDown();
-            case KeyEvent.VK_UP -> user2Paddle.moveUp();
-            case KeyEvent.VK_DOWN -> user2Paddle.moveDown();
-
-
-        }
-
+        keys[keyCode] = true;
     }
 
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
-
-        switch (keyCode) {
-            case KeyEvent.VK_W -> user1Paddle.moveUp();
-            case KeyEvent.VK_S -> user1Paddle.moveDown();
-            case KeyEvent.VK_UP -> user2Paddle.moveUp();
-            case KeyEvent.VK_DOWN -> user2Paddle.moveDown();
-        }
+        keys[keyCode] = false;
     }
 
     public void keyTyped(KeyEvent e) {

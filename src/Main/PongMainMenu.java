@@ -182,7 +182,7 @@ public class PongMainMenu extends JFrame implements ActionListener {
     }
     public void openShowInfo() {
         ShowInfo showInfo = new ShowInfo(this);
-        setVisible(false);
+        setVisible(false);     
         showInfo.setVisible(true);
     }
     /*-----------------------------------------------*/
