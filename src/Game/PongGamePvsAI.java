@@ -15,7 +15,6 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
     protected UserPaddle userPaddle;
     protected AIPaddle aiPaddle;
     private int userScore, aiScore;
-    private int bounceCount;
     private boolean gameEnded = false;
 
     private Clip clip;
@@ -41,7 +40,6 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         userScore = 0;
         aiScore = 0;
-        bounceCount = 0;
 
         addKeyListener(this);
 
@@ -58,11 +56,11 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         gameBall.setX(300);
         gameBall.setY(200);
-        gameBall.setCurrentX(3);
-        gameBall.setCurrentY(3);
+        gameBall.setCurrentX(Math.random() > 0.5 ? 3 : -3); // Randomly choose positive or negative X direction
+        gameBall.setCurrentY(Math.random() > 0.5 ? 3 : -3); // Randomly choose positive or negative Y direction
         gameBall.setSpeed(3);
-        bounceCount = 0;
     }
+
 
     public void paintComponent(Graphics g) {
         g.setColor(Color.BLACK);
@@ -93,13 +91,8 @@ public class PongGamePvsAI extends JPanel implements KeyListener {
 
         if (aiPaddle.checkCollision(gameBall) || userPaddle.checkCollision(gameBall)) {
             gameBall.reverseX();
-            bounceCount++;
             gameBall.increaseSpeed();
             playSound();
-        }
-
-        if (bounceCount == 5) {
-            bounceCount = 0;
         }
 
         if (gameBall.getX() < 0) {

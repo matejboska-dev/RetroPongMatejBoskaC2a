@@ -52,10 +52,12 @@ public class PongGamePvsP extends JPanel implements KeyListener {
 
         gameBall.setX(300);
         gameBall.setY(200);
-        gameBall.setCurrentX(3);
-        gameBall.setCurrentY(3);
+        gameBall.setCurrentX(Math.random() > 0.5 ? 3 : -3); // Randomly choose positive or negative X direction
+        gameBall.setCurrentY(Math.random() > 0.5 ? 3 : -3); // Randomly choose positive or negative Y direction
         gameBall.setSpeed(3);
+
     }
+
 
     public void paintComponent(Graphics g) {
         g.setColor(Color.BLACK);
