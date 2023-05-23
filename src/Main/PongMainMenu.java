@@ -83,6 +83,7 @@ public class PongMainMenu extends JFrame implements ActionListener {
         /*-----------------------------------------------*/
         JButton offButton = new JButton("X");
         offButton.addActionListener(e -> {
+            System.exit(0);
             dispose();
         });
         offButton.setBounds(0,0, 50, 50);
