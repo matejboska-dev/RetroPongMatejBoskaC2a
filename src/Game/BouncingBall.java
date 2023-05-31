@@ -42,20 +42,6 @@ public class BouncingBall extends JPanel {
         g.drawImage(ballImage, x, y, null);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        JFrame frame = new JFrame("Bouncing Ball");
-        BouncingBall ball = new BouncingBall();
-        frame.add(ball);
-        frame.setSize(500, 500);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        while (true) {
-            ball.moveBall();
-            ball.repaint();
-            Thread.sleep(10);
-        }
-    }
 }
 
 
